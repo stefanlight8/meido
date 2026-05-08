@@ -2,7 +2,6 @@ mod app;
 mod category;
 mod expander;
 mod expanders;
-mod gui;
 mod node;
 mod policy;
 mod rule;
