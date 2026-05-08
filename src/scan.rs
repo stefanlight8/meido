@@ -46,17 +46,32 @@ async fn scan_node(
 ) -> Result<()> {
     let mut stack = vec![node];
 
-    while let Some(node) = stack.pop() {
-        tracing::debug!("scanning: {:?}", node);
-        if let Ok(mut dir) = read_dir(&node.path).await {
-            while let Some(entry) = dir.next_entry().await? {
+    'outer: while let Some(node) = stack.pop() {
+        let path = node.path;
+
+        for rule in rules {
+            if let Some(category) = rule.check(&path.as_path()).await {
+                buffer.push(category, path.clone());
+
+                continue 'outer;
+            }
+        }
+
+        if let Ok(mut dir) = read_dir(&path).await {
+            'inner: while let Some(entry) = dir.next_entry().await? {
                 let path = entry.path();
 
+                println!("scanning {:?} path", path);
+
                 for rule in rules {
-                    if let Some(category) = rule.check(path.as_path()).await {
+                    if let Some(category) = rule.check(&path.as_path()).await {
                         buffer.push(category, path.clone());
+
+                        continue 'inner;
                     }
                 }
+
+                println!("scanning {:?} path", path);
 
                 if entry.file_type().await?.is_dir() {
                     stack.push(Node::new(path, Policy::Scan));

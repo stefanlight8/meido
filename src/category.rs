@@ -11,12 +11,15 @@ pub enum Category {
     CargoGit,
     CargoRegistryCache,
     DiskImages,
-    GradleBuild,
     Gradle,
+    GradleBuild,
+    GradleCache,
     MavenTarget,
     M2Repository,
     PdmBuilds,
     NpmCache,
+    ElectronCache,
+    VscCache,
     #[cfg(target_os = "macos")]
     Xcode,
 }

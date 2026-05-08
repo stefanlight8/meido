@@ -1,6 +1,6 @@
 pub mod bun;
 pub mod cargo;
-pub mod go;
+pub mod gradle;
 pub mod m2;
 pub mod npm;
 

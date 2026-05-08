@@ -13,7 +13,7 @@ use {
     crate::{
         expander::Expander,
         expanders::{
-            bun::BunExpander, cargo::CargoExpander, go::GoExpander, m2::M2Expander,
+            bun::BunExpander, cargo::CargoExpander, gradle::GradleExpander, m2::M2Expander,
             npm::NpmExpander,
         },
         node::Node,
@@ -21,6 +21,7 @@ use {
         rules::{
             cache::CacheRule,
             disk_images::DiskImagesRule,
+            electron_cache::ElectronCacheRule,
             gradle::{GradleBuildRule, GradleRule},
             maven::MavenRule,
             node_modules::NodeModulesRule,
@@ -28,6 +29,7 @@ use {
             python_caches::PythonCachesRule,
             python_venvs::PythonVenvsRule,
             rust_target::RustTargetRule,
+            vsc_cache::VscCacheRule,
         },
     },
     anyhow::Result,
@@ -40,10 +42,10 @@ use crate::expanders::library::LibraryExpander;
 
 static EXPANDERS: &[&dyn Expander<Node>] = &[
     &BunExpander,
-    &GoExpander,
     &CargoExpander,
     &M2Expander,
     &NpmExpander,
+    &GradleExpander,
     #[cfg(target_os = "macos")]
     &LibraryExpander,
 ];
@@ -58,6 +60,8 @@ static RULES: &[&dyn Rule] = &[
     &GradleBuildRule,
     &MavenRule,
     &PdmBuildRule,
+    &ElectronCacheRule,
+    &VscCacheRule,
 ];
 
 fn main() -> Result<()> {

@@ -12,7 +12,7 @@ impl TrashBuffer {
     }
 
     pub fn push(&mut self, category: Category, path: PathBuf) {
-        self.0.entry(category).or_insert(Vec::new()).push(path);
+        self.0.entry(category).or_default().push(path);
     }
 
     pub async fn trash(self) {}

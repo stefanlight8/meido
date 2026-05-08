@@ -9,6 +9,8 @@ impl Expander<Node> for LibraryExpander {
     fn expand(&self, item: &Node) -> Expanded<Node> {
         if item.path.ends_with("Library") {
             return Expanded::Vec(vec![
+                item.join("Application Support", Policy::Scan),
+                // I'm not quite sure about that
                 item.join("Caches", Policy::Collect(Category::Cache)),
                 item.join(
                     "Developer/Xcode/DerivedData",

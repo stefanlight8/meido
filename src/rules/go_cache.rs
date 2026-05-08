@@ -2,15 +2,11 @@ use std::path::Path;
 
 use crate::{category::Category, rule::Rule};
 
-pub struct CacheRule;
+pub struct GoCacheRule;
 
 #[async_trait::async_trait]
-impl Rule for CacheRule {
+impl Rule for GoCacheRule {
     async fn check(&self, path: &Path) -> Option<Category> {
-        if path.ends_with(".cache") {
-            Some(Category::Cache)
-        } else {
-            None
-        }
+        None
     }
 }
