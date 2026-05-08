@@ -9,3 +9,5 @@ pub mod python_caches;
 pub mod python_venvs;
 pub mod rust_target;
 pub mod vsc_cache;
+pub mod zig_build;
+pub mod zig_cache;

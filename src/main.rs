@@ -14,7 +14,7 @@ use {
         expander::Expander,
         expanders::{
             bun::BunExpander, cargo::CargoExpander, gradle::GradleExpander, m2::M2Expander,
-            npm::NpmExpander,
+            npm::NpmExpander, spotify::SpotifyExpander,
         },
         node::Node,
         rule::Rule,
@@ -30,6 +30,8 @@ use {
             python_venvs::PythonVenvsRule,
             rust_target::RustTargetRule,
             vsc_cache::VscCacheRule,
+            zig_build::ZigBuildRule,
+            zig_cache::ZigCacheRule,
         },
     },
     anyhow::Result,
@@ -46,6 +48,7 @@ static EXPANDERS: &[&dyn Expander<Node>] = &[
     &M2Expander,
     &NpmExpander,
     &GradleExpander,
+    &SpotifyExpander,
     #[cfg(target_os = "macos")]
     &LibraryExpander,
 ];
@@ -62,6 +65,8 @@ static RULES: &[&dyn Rule] = &[
     &PdmBuildRule,
     &ElectronCacheRule,
     &VscCacheRule,
+    &ZigBuildRule,
+    &ZigCacheRule,
 ];
 
 fn main() -> Result<()> {
