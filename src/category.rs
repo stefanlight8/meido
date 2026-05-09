@@ -7,7 +7,6 @@ pub enum Category {
     PythonVenvs,
     PythonCaches,
     BunCache,
-    GoCache,
     CargoGit,
     CargoRegistryCache,
     DiskImages,
