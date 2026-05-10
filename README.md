@@ -1,12 +1,9 @@
-<div style="display: flex; align-items: center; gap: 16px;">
-  <img src="assets/badge.png" width="64" height="64" />
-
-  <div>
-    <h2 style="margin: 0;">Meido</h2>
-    <p style="margin: 0; opacity: 0.7;">
+<img src="assets/badge.png" width="64" height="64" />
+<div>
+    <h2>Meido (メイド)</h2>
+    <p style="opacity: 0.7;">
         a no-nonsense cleaner app.
     </p>
-  </div>
 </div>
 
 Built with [Rust], [iced]. 
