@@ -1,4 +1,13 @@
-Meido (メイド, *meido*) – a no-nonsense cleaner app.
+<div style="display: flex; align-items: center; gap: 16px;">
+  <img src="assets/badge.png" width="64" height="64" />
+
+  <div>
+    <h2 style="margin: 0;">Meido</h2>
+    <p style="margin: 0; opacity: 0.7;">
+        a no-nonsense cleaner app.
+    </p>
+  </div>
+</div>
 
 Built with [Rust], [iced]. 
 
@@ -28,3 +37,5 @@ and etc...
 
 [Rust]: https://rust-lang.org/
 [iced]: https://iced.rs/
+
+<img src="assets/bar.png">
