@@ -1,6 +1,6 @@
 use crate::{
     category::Category,
-    expander::{Expanded, Expander},
+    expanders::{Expanded, Expander},
     node::Node,
     policy::Policy,
 };
@@ -8,7 +8,7 @@ use crate::{
 pub struct GradleExpander;
 
 impl Expander<Node> for GradleExpander {
-    fn expand(&self, item: &Node) -> crate::expander::Expanded<Node> {
+    fn expand(&self, item: &Node) -> Expanded<Node> {
         if item.path.ends_with(".gradle") {
             Expanded::Item(item.join("caches", Policy::Collect(Category::GradleCache)))
         } else {

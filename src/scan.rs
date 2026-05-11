@@ -1,11 +1,15 @@
-use anyhow::Result;
-use std::path::Path;
-use tokio::fs::read_dir;
+use {
+    crate::expanders::{Expanded, Expander},
+    crate::trash::TrashEntry,
+    crate::{node::Node, policy::Policy, rules::Rule},
+    anyhow::Result,
+    async_stream::stream,
+    futures_lite::Stream,
+    std::path::Path,
+    tokio::fs::read_dir,
+};
 
-use crate::expander::{Expanded, Expander};
-use crate::{node::Node, policy::Policy, rule::Rule, trash_buffer::TrashBuffer};
-
-pub async fn get_nodes(
+pub async fn index_nodes(
     path: impl AsRef<Path>,
     expanders: &'static [&'static dyn Expander<Node>],
 ) -> Result<Vec<Node>> {
@@ -39,69 +43,35 @@ pub async fn get_nodes(
     Ok(nodes)
 }
 
-async fn scan_node(
+pub fn scan_node(
     node: Node,
-    buffer: &mut TrashBuffer,
     rules: &'static [&'static dyn Rule],
-) -> Result<()> {
-    let mut stack = vec![node];
+) -> impl Stream<Item = TrashEntry> {
+    stream! {
+        let mut stack = vec![node];
 
-    'outer: while let Some(node) = stack.pop() {
-        let path = node.path;
-
-        for rule in rules {
-            if let Some(category) = rule.check(&path.as_path()).await {
-                buffer.push(category, path.clone());
-
-                continue 'outer;
-            }
-        }
-
-        if let Ok(mut dir) = read_dir(&path).await {
-            'inner: while let Some(entry) = dir.next_entry().await? {
-                let path = entry.path();
-
-                println!("scanning {:?} path", path);
-
-                for rule in rules {
-                    if let Some(category) = rule.check(&path.as_path()).await {
-                        buffer.push(category, path.clone());
-
-                        continue 'inner;
-                    }
-                }
-
-                println!("scanning {:?} path", path);
-
-                if entry.file_type().await?.is_dir() {
-                    stack.push(Node::new(path, Policy::Scan));
-                }
-            }
+        'dir: while let Some(node) = stack.pop() {
+           let path = node.path;
+           for rule in rules {
+               if let Some(category) = rule.check(&path.as_path()).await {
+                   yield TrashEntry(category, path.clone());
+                   continue 'dir;
+               }
+           }
+           if let Ok(mut dir) = read_dir(&path).await {
+               'file: while let Some(entry) = dir.next_entry().await.unwrap_or(None) {
+                   let path = entry.path();
+                   for rule in rules {
+                       if let Some(category) = rule.check(&path.as_path()).await {
+                           yield TrashEntry(category, path.clone());
+                           continue 'file;
+                       }
+                   }
+                   if entry.file_type().await.map(|ft| ft.is_dir()).unwrap_or(false) {
+                       stack.push(Node::new(path, Policy::Scan));
+                   }
+               }
+           }
         }
     }
-
-    Ok(())
-}
-
-pub async fn scan(
-    path: impl AsRef<Path>,
-    expanders: &'static [&'static dyn Expander<Node>],
-    rules: &'static [&'static dyn Rule],
-) -> Result<TrashBuffer> {
-    let mut buffer = TrashBuffer::new();
-
-    for node in get_nodes(path, expanders).await? {
-        match node.policy {
-            Policy::Collect(category) => {
-                tracing::debug!("collected: {:?} to {:?}", node, category);
-                buffer.push(category, node.path)
-            }
-            Policy::Scan => {
-                tracing::debug!("scanning: {:?}", node);
-                scan_node(node, &mut buffer, rules).await?
-            }
-        }
-    }
-
-    Ok(buffer)
 }

@@ -1,4 +1,4 @@
-use crate::{category::Category, rule::Rule};
+use crate::{category::Category, rules::Rule};
 
 pub struct GradleBuildRule;
 

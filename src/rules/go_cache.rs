@@ -1,6 +1,7 @@
-use std::path::Path;
-
-use crate::{category::Category, rule::Rule};
+use {
+    crate::{category::Category, rule::Rule},
+    std::path::Path,
+};
 
 pub struct GoCacheRule;
 

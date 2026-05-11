@@ -1,24 +1,22 @@
 mod app;
 mod category;
-mod expander;
 mod expanders;
+mod gui;
 mod node;
 mod policy;
-mod rule;
 mod rules;
 mod scan;
-mod trash_buffer;
+mod trash;
 
 use {
     crate::{
-        expander::Expander,
         expanders::{
-            bun::BunExpander, cargo::CargoExpander, gradle::GradleExpander, m2::M2Expander,
-            npm::NpmExpander, spotify::SpotifyExpander,
+            Expander, bun::BunExpander, cargo::CargoExpander, gradle::GradleExpander,
+            m2::M2Expander, npm::NpmExpander, spotify::SpotifyExpander,
         },
         node::Node,
-        rule::Rule,
         rules::{
+            Rule,
             cache::CacheRule,
             disk_images::DiskImagesRule,
             electron::ElectronCacheRule,
@@ -32,7 +30,6 @@ use {
         },
     },
     anyhow::Result,
-    std::{env, path::PathBuf},
     tracing::level_filters::LevelFilter,
 };
 
@@ -71,11 +68,7 @@ fn main() -> Result<()> {
         .with_max_level(LevelFilter::DEBUG)
         .init();
 
-    let home_dir = env::var("HOME")
-        .or_else(|_| env::var("USERPROFILE"))
-        .map(PathBuf::from)?;
-
-    app::run(home_dir, EXPANDERS, RULES)?;
+    app::gui::run(EXPANDERS, RULES)?;
 
     Ok(())
 }

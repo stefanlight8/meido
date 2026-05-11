@@ -8,3 +8,10 @@ pub mod python;
 pub mod rust;
 pub mod vsc;
 pub mod zig;
+
+use {crate::category::Category, std::path::Path};
+
+#[async_trait::async_trait]
+pub trait Rule: Sync {
+    async fn check(&self, path: &Path) -> Option<Category>;
+}

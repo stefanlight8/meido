@@ -4,6 +4,9 @@ use {
 };
 
 #[derive(Debug, Clone)]
+pub struct TrashEntry(pub Category, pub PathBuf);
+
+#[derive(Debug, Clone)]
 pub struct TrashBuffer(pub HashMap<Category, Vec<PathBuf>>);
 
 impl TrashBuffer {
@@ -11,8 +14,8 @@ impl TrashBuffer {
         Self(HashMap::new())
     }
 
-    pub fn push(&mut self, category: Category, path: PathBuf) {
-        self.0.entry(category).or_default().push(path);
+    pub fn push(&mut self, entry: TrashEntry) {
+        self.0.entry(entry.0).or_default().push(entry.1);
     }
 
     pub async fn trash(self) {}

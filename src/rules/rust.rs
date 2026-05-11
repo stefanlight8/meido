@@ -1,5 +1,5 @@
 use {
-    crate::{category::Category, rule::Rule},
+    crate::{category::Category, rules::Rule},
     std::path::Path,
 };
 

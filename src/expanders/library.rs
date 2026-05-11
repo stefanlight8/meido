@@ -1,5 +1,5 @@
 use crate::category::Category;
-use crate::expander::{Expanded, Expander};
+use crate::expanders::{Expanded, Expander};
 use crate::node::Node;
 use crate::policy::Policy;
 
@@ -8,7 +8,7 @@ pub struct LibraryExpander;
 impl Expander<Node> for LibraryExpander {
     fn expand(&self, item: &Node) -> Expanded<Node> {
         if item.path.ends_with("Library") {
-            return Expanded::Vec(vec![
+            Expanded::Vec(vec![
                 item.join("Application Support", Policy::Scan),
                 // I'm not quite sure about that
                 item.join("Caches", Policy::Collect(Category::Cache)),
@@ -23,9 +23,9 @@ impl Expander<Node> for LibraryExpander {
                 ),
                 item.join("Developer/CoreSimulator", Policy::Collect(Category::Xcode)),
                 item.join("Logs", Policy::Collect(Category::Logs)),
-            ]);
+            ])
+        } else {
+            Expanded::None
         }
-
-        Expanded::None
     }
 }

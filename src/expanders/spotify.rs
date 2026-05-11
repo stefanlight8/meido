@@ -1,6 +1,6 @@
 use crate::{
     category::Category,
-    expander::{Expanded, Expander},
+    expanders::{Expanded, Expander},
     node::Node,
     policy::Policy,
 };

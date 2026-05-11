@@ -3,7 +3,7 @@ use {
     std::path::{Path, PathBuf},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     pub path: PathBuf,
     pub policy: Policy,

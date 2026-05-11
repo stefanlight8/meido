@@ -1,13 +1,20 @@
 [package]
 name = "meido"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
+description = "a no-nonsense cleaner app"
+license-file = "./LICENSE"
 
 [dependencies]
 anyhow = "1.0.102"
+async-stream = "0.3.6"
 async-trait = "0.1.89"
+futures-lite = "2.6.1"
 glob = "0.3.3"
-iced = { version = "0.14.0", features = ["tokio"] }
+iced = { version = "0.14.0", features = ["advanced", "image", "svg", "tokio"] }
 tokio = { version = "1.51.1", features = ["fs"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.23"
+
+[dev-dependencies]
+iced = { version = "0.14.0", features = ["debug"] }
