@@ -27,19 +27,22 @@ impl Catalog for Theme {
         let palette = self.palette().unwrap();
 
         Style {
-            background: Some(Background::Color(match (class, status) {
-                (Button::Primary, Status::Active) => palette.primary,
-                (Button::Primary, Status::Hovered) => deviate(palette.primary, 0.25),
-                (Button::Primary, Status::Pressed) => deviate(palette.primary, 0.35),
-                (Button::Primary, Status::Disabled) => deviate(palette.primary, 0.45),
-                (Button::Warning, Status::Active) => palette.primary,
-                (Button::Warning, Status::Hovered) => palette.warning,
-                (Button::Warning, Status::Pressed) => deviate(palette.warning, 0.25),
-                (Button::Warning, Status::Disabled) => deviate(palette.primary, 0.35),
-                (Button::Danger, Status::Active) => palette.primary,
-                (Button::Danger, Status::Hovered) => palette.danger,
-                (Button::Danger, Status::Pressed) => deviate(palette.danger, 0.25),
-                (Button::Danger, Status::Disabled) => deviate(palette.primary, 0.35),
+            background: Some(Background::Color(match status {
+                Status::Active => palette.primary,
+                Status::Disabled => deviate(palette.primary, 0.25),
+                Status::Hovered => match class {
+                    Button::Primary => deviate(palette.primary, 0.30),
+                    Button::Warning => palette.warning,
+                    Button::Danger => palette.danger,
+                },
+                Status::Pressed => deviate(
+                    match class {
+                        Button::Primary => palette.primary,
+                        Button::Warning => palette.warning,
+                        Button::Danger => palette.danger,
+                    },
+                    0.35,
+                ),
             })),
             text_color: palette.background,
             border: Border {
