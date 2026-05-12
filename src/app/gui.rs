@@ -1,17 +1,26 @@
 use {
-    crate::{expanders::Expander, gui::state::State, node::Node, rules::Rule},
+    crate::{
+        expanders::Expander,
+        gui::{fonts::inter::INTER_REGULAR, state::State},
+        node::Node,
+        rules::Rule,
+    },
     anyhow::Result,
-    iced::{Font, window},
+    iced::window,
 };
 
 #[cfg(target_os = "macos")]
-fn default_font() -> iced::Font {
-    Font::with_name("SF Pro")
+fn platform_specific() -> window::settings::PlatformSpecific {
+    window::settings::PlatformSpecific {
+        titlebar_transparent: true,
+        fullsize_content_view: true,
+        ..Default::default()
+    }
 }
 
 #[cfg(not(target_os = "macos"))]
-fn default_font() -> iced::Font {
-    Font::with_name("Inter")
+fn platform_specific() -> window::settings::PlatformSpecific {
+    window::settings::PlatformSpecific::default()
 }
 
 pub fn run(
@@ -28,18 +37,11 @@ pub fn run(
         icon: window::icon::from_file("assets/icon.png")
             .map(Some)
             .unwrap_or(None),
-        platform_specific: {
-            #[cfg(target_os = "macos")]
-            iced::window::settings::PlatformSpecific {
-                titlebar_transparent: true,
-                fullsize_content_view: true,
-                ..Default::default()
-            }
-        },
+        platform_specific: platform_specific(),
         ..Default::default()
     })
     .settings(iced::Settings {
-        default_font: default_font(),
+        default_font: INTER_REGULAR,
         ..Default::default()
     })
     .title("Meido")
