@@ -5,6 +5,12 @@ edition = "2024"
 description = "a no-nonsense cleaner app"
 license-file = "./LICENSE"
 
+[profile.release]
+lto = true
+codegen-units = 1
+panic = 'abort'
+strip = true
+
 [dependencies]
 anyhow = "1.0.102"
 async-stream = "0.3.6"
