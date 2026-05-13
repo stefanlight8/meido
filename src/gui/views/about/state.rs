@@ -1,22 +1,30 @@
-use crate::{
-    app::{DESCRIPTION, VERSION},
-    gui::{element::Element, message::Message, styles::text::Text, widget::bar},
-};
-use iced::{
-    Length,
-    widget::{column, container, space, svg, text},
+use {
+    crate::{
+        app::{DESCRIPTION, VERSION},
+        gui::{
+            element::Element,
+            fonts::inter::INTER_MEDIUM,
+            styles::text::Text,
+            views::about::message::AboutMessage,
+            widget::{bar, status_bar},
+        },
+    },
+    iced::{
+        Length,
+        widget::{column, container, svg, text},
+    },
 };
 
 pub struct AboutState;
 
 impl AboutState {
-    pub fn view(&self) -> Element<'_, Message> {
+    pub fn view(&self) -> Element<'_, AboutMessage> {
         column![
-            space().width(Length::Fill).height(Length::Fixed(30.0)),
+            status_bar("About"),
             column![
-                container(svg("assets/logo.svg")).align_left(Length::Fixed(255.0)),
+                container(svg("static/logo.svg")).align_left(Length::Fixed(255.0)),
                 column![
-                    text("Meido").size(24),
+                    text("Meido").size(20).font(INTER_MEDIUM),
                     text(format!("v{}", VERSION))
                         .class(Text::Secondary)
                         .size(16)

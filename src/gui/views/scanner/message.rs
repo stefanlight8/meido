@@ -1,5 +1,5 @@
 use {
-    crate::{node::Node, trash::TrashEntry},
+    crate::{category::Category, node::Node, trash::TrashEntry},
     std::path::PathBuf,
 };
 
@@ -9,4 +9,9 @@ pub enum ScannerMessage {
     IndexedNodes(Vec<Node>),
     NodeFinished(Node),
     Collected(TrashEntry),
+    SelectCategory(Category),
+    UnselectCategory(Category),
+    SelectFile(PathBuf),
+    UnselectFile(PathBuf),
+    View(Option<Category>),
 }

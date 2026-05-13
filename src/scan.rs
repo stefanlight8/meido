@@ -1,7 +1,11 @@
 use {
-    crate::expanders::{Expanded, Expander},
-    crate::trash::TrashEntry,
-    crate::{node::Node, policy::Policy, rules::Rule},
+    crate::{
+        expanders::{Expanded, Expander},
+        node::Node,
+        policy::Policy,
+        rules::Rule,
+        trash::TrashEntry,
+    },
     anyhow::Result,
     async_stream::stream,
     futures_lite::Stream,

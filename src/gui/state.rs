@@ -43,13 +43,14 @@ impl State {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::Scanner(message) => self.scanner.update(message).map(Message::Scanner),
+            _ => Task::none(),
         }
     }
 
     pub fn view(&self) -> Element<'_, Message> {
         match self.screen {
             Screen::Scanner => self.scanner.view().map(Message::Scanner),
-            Screen::About => self.about.view(),
+            Screen::About => self.about.view().map(Message::About),
         }
     }
 }

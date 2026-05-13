@@ -1,7 +1,9 @@
-use crate::category::Category;
-use crate::expanders::{Expanded, Expander};
-use crate::node::Node;
-use crate::policy::Policy;
+use crate::{
+    category::Category,
+    expanders::{Expanded, Expander},
+    node::Node,
+    policy::Policy,
+};
 
 pub struct LibraryExpander;
 

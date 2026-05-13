@@ -1,5 +1,5 @@
 use {
-    crate::gui::{element::Element, styles::text::Text},
+    crate::gui::{element::Element, fonts::inter::INTER_MEDIUM, styles::text::Text},
     iced::{
         Length,
         widget::{self, column, row, space, text},
@@ -19,12 +19,15 @@ pub struct ProgressBar {
 impl ProgressBar {
     pub fn view<'a, Message: 'a>(self) -> Element<'a, Message> {
         let progress_bar = widget::progress_bar(self.range, self.value).girth(self.girth);
-        let percentage = text(format!("{:.0}%", self.value * 100.0));
+        let percentage = text(format!("{:.0}%", self.value * 100.0)).font(INTER_MEDIUM);
         let mut details_column = column![];
 
         if let Some(status) = self.status {
-            details_column =
-                details_column.push(row![text(status), space().width(Length::Fill), percentage]);
+            details_column = details_column.push(row![
+                text(status).font(INTER_MEDIUM),
+                space().width(Length::Fill),
+                percentage
+            ]);
         } else {
             details_column = details_column.push(percentage)
         }

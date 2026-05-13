@@ -1,7 +1,8 @@
 use {
     crate::gui::theme::Theme,
     iced::{
-        Background, Color,
+        Background, Border, Color,
+        border::radius,
         theme::Base,
         widget::container::{Catalog, Style},
     },
@@ -11,7 +12,7 @@ use {
 pub enum Container {
     #[default]
     Default,
-    Color(Color),
+    Color(Color, bool),
 }
 
 impl Catalog for Theme {
@@ -29,8 +30,12 @@ impl Catalog for Theme {
                 text_color: Some(palette.text),
                 ..Default::default()
             },
-            Container::Color(color) => Style {
+            Container::Color(color, rounding) => Style {
                 background: Some(Background::Color(color.clone())),
+                border: Border {
+                    radius: rounding.then_some(radius(12)).unwrap_or(radius(0)),
+                    ..Default::default()
+                },
                 ..Default::default()
             },
         }

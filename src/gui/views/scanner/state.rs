@@ -1,8 +1,12 @@
 use {
-    super::message::ScannerMessage,
+    super::{
+        categories::categories, control_panel::control_panel, file_browser::file_browser,
+        message::ScannerMessage,
+    },
     crate::{
+        category::Category,
         expanders::Expander,
-        gui::{element::Element, styles::button::Button, widget::progress_bar},
+        gui::{element::Element, widget::status_bar},
         node::Node,
         policy::Policy,
         rules::Rule,
@@ -12,7 +16,7 @@ use {
     futures_lite::{StreamExt, stream},
     iced::{
         Length, Task,
-        widget::{button, column, row, space},
+        widget::{column, container, row, scrollable},
     },
     std::{collections::HashSet, env, path::PathBuf},
 };
@@ -20,14 +24,22 @@ use {
 type NodeId = PathBuf;
 
 #[derive(Debug)]
-enum ScanningState {
+pub enum ScanningState {
     None,
     Scanning {
         nodes_index: HashSet<NodeId>,
         scanned: HashSet<NodeId>,
         path: Option<PathBuf>,
+        files_count: usize,
     },
-    Complete,
+    Complete {
+        files_count: usize,
+    },
+}
+
+pub enum ViewFilesState {
+    All,
+    Category(Category),
 }
 
 pub struct ScannerState {
@@ -35,7 +47,9 @@ pub struct ScannerState {
     pub trash_buffer: TrashBuffer,
     pub expanders: &'static [&'static dyn Expander<Node>],
     pub rules: &'static [&'static dyn Rule],
-    scanning: ScanningState,
+    pub scanning: ScanningState,
+    pub selected_categories: HashSet<Category>,
+    pub view_files: ViewFilesState,
 }
 
 impl ScannerState {
@@ -51,6 +65,8 @@ impl ScannerState {
                 .map_or(PathBuf::from("~"), PathBuf::from), // TODO: path settings
             trash_buffer: TrashBuffer::new(),
             scanning: ScanningState::None,
+            selected_categories: HashSet::new(),
+            view_files: ViewFilesState::All,
         }
     }
 
@@ -65,6 +81,7 @@ impl ScannerState {
                     nodes_index: nodes.iter().map(|node| node.path.clone()).collect(),
                     scanned: HashSet::new(),
                     path: None,
+                    files_count: 0,
                 };
 
                 Task::batch(nodes.iter().map(|node| match node.policy {
@@ -87,15 +104,18 @@ impl ScannerState {
                         Task::stream(
                             scan_node(node.clone(), self.rules)
                                 .map(move |entry| ScannerMessage::Collected(entry))
-                                .chain(stream::once(ScannerMessage::NodeFinished(node.clone()))),
+                                .chain(stream::once(ScannerMessage::NodeFinished(node))),
                         )
                     }
                 }))
             }
             ScannerMessage::Collected(entry) => {
                 match &mut self.scanning {
-                    ScanningState::Scanning { path, .. } => {
+                    ScanningState::Scanning {
+                        path, files_count, ..
+                    } => {
                         *path = Some(entry.1.clone());
+                        *files_count += 1;
                     }
                     _ => (),
                 };
@@ -108,16 +128,41 @@ impl ScannerState {
                     ScanningState::Scanning {
                         nodes_index,
                         scanned,
+                        files_count,
                         ..
                     } => {
                         scanned.insert(node.path.clone());
 
                         if scanned == nodes_index {
-                            self.scanning = ScanningState::Complete;
+                            self.scanning = ScanningState::Complete {
+                                files_count: files_count.clone(),
+                            };
                         }
                     }
                     _ => (),
                 };
+                Task::none()
+            }
+            ScannerMessage::SelectCategory(category) => {
+                self.trash_buffer.trash_category(&category);
+                self.selected_categories.insert(category);
+
+                Task::none()
+            }
+            ScannerMessage::UnselectCategory(category) => {
+                self.trash_buffer.untrash_category(&category);
+                self.selected_categories.remove(&category);
+
+                Task::none()
+            }
+            ScannerMessage::View(Some(category)) => {
+                self.view_files = ViewFilesState::Category(category);
+
+                Task::none()
+            }
+            ScannerMessage::View(None) => {
+                self.view_files = ViewFilesState::All;
+
                 Task::none()
             }
             _ => Task::none(),
@@ -125,32 +170,28 @@ impl ScannerState {
     }
 
     pub fn view(&self) -> Element<'_, ScannerMessage> {
-        let content: Element<'_, ScannerMessage> = match &self.scanning {
-            ScanningState::None => button("Scan")
-                .on_press(ScannerMessage::Scan(self.path.clone()))
-                .into(),
-
-            ScanningState::Scanning {
-                nodes_index,
-                scanned,
-                ..
-            } => progress_bar(0.0..=1.0, scanned.len() as f32 / nodes_index.len() as f32)
-                .girth(3.0)
-                .status("Scanning".to_string())
-                .details(format!("{}/{}", scanned.len(), nodes_index.len()))
-                .view()
-                .into(),
-
-            ScanningState::Complete => row![
-                button("Trash").class(Button::Warning),
-                button("Delete").class(Button::Danger),
-            ]
-            .spacing(4)
-            .into(),
+        let files = match &self.view_files {
+            ViewFilesState::All => self.trash_buffer.files(None),
+            ViewFilesState::Category(category) => self.trash_buffer.files(Some(*category)),
         };
 
-        column![space().height(Length::Fill), content]
-            .padding(12)
-            .into()
+        column![
+            status_bar(match self.scanning {
+                ScanningState::None => "",
+                ScanningState::Scanning { .. } => "Scanning",
+                ScanningState::Complete { .. } => "",
+            }),
+            column![
+                row![
+                    container(categories(&self)).width(Length::FillPortion(1)),
+                    container(scrollable(file_browser(&self, files)).width(Length::Fill))
+                        .width(Length::FillPortion(3))
+                ]
+                .height(Length::Fill),
+                control_panel(&self)
+            ]
+            .padding(12),
+        ]
+        .into()
     }
 }

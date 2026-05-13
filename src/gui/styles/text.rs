@@ -26,7 +26,7 @@ impl Catalog for Theme {
         match class {
             Text::Primary => Style::default(),
             Text::Secondary => Style {
-                color: Some(deviate(palette.text, 0.25)),
+                color: Some(deviate(palette.text, 0.35)),
             },
         }
     }

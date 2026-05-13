@@ -8,6 +8,8 @@ mod rules;
 mod scan;
 mod trash;
 
+#[cfg(target_os = "macos")]
+use crate::expanders::library::LibraryExpander;
 use {
     crate::{
         expanders::{
@@ -32,9 +34,6 @@ use {
     anyhow::Result,
     tracing::level_filters::LevelFilter,
 };
-
-#[cfg(target_os = "macos")]
-use crate::expanders::library::LibraryExpander;
 
 static EXPANDERS: &[&dyn Expander<Node>] = &[
     &BunExpander,
