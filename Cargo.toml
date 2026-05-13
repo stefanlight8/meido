@@ -16,7 +16,6 @@ anyhow = "1.0.102"
 async-stream = "0.3.6"
 async-trait = "0.1.89"
 futures-lite = "2.6.1"
-glob = "0.3.3"
 iced = { version = "0.14.0", features = ["advanced", "image", "svg", "tokio"] }
 tokio = { version = "1.51.1", features = ["fs"] }
 tracing = "0.1.44"

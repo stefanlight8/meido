@@ -22,6 +22,7 @@ pub enum Category {
     ZigCache,
     ZigBuild,
     SpotifyCache,
+    GoCache,
     #[cfg(target_os = "macos")]
     Xcode,
 }

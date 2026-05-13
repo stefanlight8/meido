@@ -22,6 +22,7 @@ use {
             cache::CacheRule,
             disk_images::DiskImagesRule,
             electron::ElectronCacheRule,
+            go::GoCacheRule,
             gradle::{GradleBuildRule, GradleRule},
             maven::MavenRule,
             node::NodeModulesRule,
@@ -60,6 +61,7 @@ static RULES: &[&dyn Rule] = &[
     &VscCacheRule,
     &ZigBuildRule,
     &ZigCacheRule,
+    &GoCacheRule,
 ];
 
 fn main() -> Result<()> {

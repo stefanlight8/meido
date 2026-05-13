@@ -1,6 +1,7 @@
 pub mod cache;
 pub mod disk_images;
 pub mod electron;
+pub mod go;
 pub mod gradle;
 pub mod maven;
 pub mod node;

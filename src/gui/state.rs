@@ -37,7 +37,7 @@ impl State {
     }
 
     pub fn theme(&self) -> Theme {
-        Theme::Dark
+        Theme::Light
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
