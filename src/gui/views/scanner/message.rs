@@ -5,7 +5,7 @@ use {
 
 #[derive(Debug, Clone)]
 pub enum ScannerMessage {
-    Scan(PathBuf),
+    Scan,
     IndexedNodes(Vec<Node>),
     NodeFinished(Node),
     Collected(TrashEntry),
@@ -14,4 +14,7 @@ pub enum ScannerMessage {
     SelectFile(PathBuf),
     UnselectFile(PathBuf),
     View(Option<Category>),
+    SelectedCategory(Option<PathBuf>),
+    SelectDirectory(Option<PathBuf>),
+    Error(String),
 }

@@ -7,10 +7,15 @@ use {
 };
 
 pub fn categories<'a>(state: &'a ScannerState) -> Element<'a, ScannerMessage> {
-    let mut categories = column![mouse_area(text("All")).on_press(ScannerMessage::View(None))];
+    let mut tree = column![];
+    let categories = state.trash_buffer.categories();
 
-    for category in state.trash_buffer.categories() {
-        categories = categories.push(
+    if categories.size_hint().0 != 0 {
+        tree = tree.push(mouse_area(text("All")).on_press(ScannerMessage::View(None)))
+    }
+
+    for category in categories {
+        tree = tree.push(
             mouse_area(
                 row![
                     checkbox(state.selected_categories.contains(&category)).on_toggle(|status| {
@@ -31,5 +36,5 @@ pub fn categories<'a>(state: &'a ScannerState) -> Element<'a, ScannerMessage> {
         );
     }
 
-    categories.into()
+    tree.into()
 }

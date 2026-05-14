@@ -17,9 +17,7 @@ use {
 
 pub fn control_panel<'a>(state: &'a ScannerState) -> Element<'a, ScannerMessage> {
     match &state.scanning {
-        ScanningState::None => button("Scan")
-            .on_press(ScannerMessage::Scan(state.path.clone()))
-            .into(),
+        ScanningState::None => button("Scan").on_press(ScannerMessage::Scan).into(),
 
         ScanningState::Scanning {
             nodes_index,

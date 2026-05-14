@@ -6,7 +6,7 @@ use {
     crate::{
         category::Category,
         expanders::Expander,
-        gui::{element::Element, widget::status_bar},
+        gui::{element::Element, views::scanner::directory::get_directory, widget::status_bar},
         node::Node,
         policy::Policy,
         rules::Rule,
@@ -43,7 +43,6 @@ pub enum ViewFilesState {
 }
 
 pub struct ScannerState {
-    pub path: PathBuf,
     pub trash_buffer: TrashBuffer,
     pub expanders: &'static [&'static dyn Expander<Node>],
     pub rules: &'static [&'static dyn Rule],
@@ -60,9 +59,6 @@ impl ScannerState {
         Self {
             expanders,
             rules,
-            path: env::var("HOME")
-                .or_else(|_| env::var("USERPROFILE"))
-                .map_or(PathBuf::from("~"), PathBuf::from), // TODO: path settings
             trash_buffer: TrashBuffer::new(),
             scanning: ScanningState::None,
             selected_categories: HashSet::new(),
@@ -72,10 +68,7 @@ impl ScannerState {
 
     pub fn update(&mut self, message: ScannerMessage) -> Task<ScannerMessage> {
         match message {
-            ScannerMessage::Scan(path) => Task::perform(
-                index_nodes(path, self.expanders),
-                |res| ScannerMessage::IndexedNodes(res.unwrap_or(vec![])), // TEMP
-            ),
+            ScannerMessage::Scan => Task::perform(get_directory(), ScannerMessage::SelectDirectory),
             ScannerMessage::IndexedNodes(nodes) => {
                 self.scanning = ScanningState::Scanning {
                     nodes_index: nodes.iter().map(|node| node.path.clone()).collect(),
@@ -165,6 +158,10 @@ impl ScannerState {
 
                 Task::none()
             }
+            ScannerMessage::SelectDirectory(Some(path)) => Task::perform(
+                index_nodes(path, self.expanders),
+                |res| ScannerMessage::IndexedNodes(res.unwrap_or(vec![])), // TEMP
+            ),
             _ => Task::none(),
         }
     }
