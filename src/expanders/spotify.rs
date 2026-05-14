@@ -10,7 +10,13 @@ pub struct SpotifyExpander;
 impl Expander<Node> for SpotifyExpander {
     fn expand(&self, item: &Node) -> Expanded<Node> {
         #[cfg(target_os = "macos")]
-        if item.path.ends_with("Library") {
+        if item.path.ends_with("Library")
+            && item
+                .path
+                .join("Application Support")
+                .join("Spotify")
+                .exists()
+        {
             return Expanded::Item(item.join(
                 "Application Support/Spotify/PersistentCache",
                 Policy::Collect(Category::SpotifyCache),
