@@ -33,7 +33,7 @@ use {
         },
     },
     anyhow::Result,
-    tracing::level_filters::LevelFilter,
+    tracing_subscriber::EnvFilter,
 };
 
 static EXPANDERS: &[&dyn Expander<Node>] = &[
@@ -66,7 +66,7 @@ static RULES: &[&dyn Rule] = &[
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt()
-        .with_max_level(LevelFilter::DEBUG)
+        .with_env_filter(EnvFilter::from_default_env())
         .init();
 
     app::gui::run(EXPANDERS, RULES)?;

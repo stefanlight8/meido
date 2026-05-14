@@ -18,7 +18,7 @@ use {
         Length, Task,
         widget::{column, container, row, scrollable},
     },
-    std::{collections::HashSet, env, path::PathBuf},
+    std::{collections::HashSet, path::PathBuf},
 };
 
 type NodeId = PathBuf;
