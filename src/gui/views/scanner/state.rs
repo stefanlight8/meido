@@ -11,7 +11,7 @@ use {
         policy::Policy,
         rules::Rule,
         scan::{index_nodes, scan_node},
-        trash::{TrashBuffer, TrashEntry},
+        trash::{TrashBuffer, TrashEntry, delete, trash},
     },
     futures_lite::{StreamExt, stream},
     iced::{
@@ -49,6 +49,7 @@ pub struct ScannerState {
     pub scanning: ScanningState,
     pub selected_categories: HashSet<Category>,
     pub view_files: ViewFilesState,
+    pub deleted_files: HashSet<PathBuf>,
 }
 
 impl ScannerState {
@@ -63,6 +64,7 @@ impl ScannerState {
             scanning: ScanningState::None,
             selected_categories: HashSet::new(),
             view_files: ViewFilesState::All,
+            deleted_files: HashSet::new(),
         }
     }
 
@@ -162,6 +164,38 @@ impl ScannerState {
                 index_nodes(path, self.expanders),
                 |res| ScannerMessage::IndexedNodes(res.unwrap_or(vec![])), // TEMP
             ),
+            ScannerMessage::SelectFile(file) => {
+                self.trash_buffer.trash_file(file);
+
+                Task::none()
+            }
+            ScannerMessage::UnselectFile(file) => {
+                self.trash_buffer.untrash_file(file);
+
+                Task::none()
+            }
+            ScannerMessage::Trash => {
+                Task::perform(trash(self.trash_buffer.can.clone()), |res| match res {
+                    Ok(()) => ScannerMessage::Trashed,
+                    Err(err) => ScannerMessage::Error(err.to_string()),
+                })
+            }
+            ScannerMessage::Trashed => {
+                self.deleted_files.extend(self.trash_buffer.can.clone());
+                self.trash_buffer.can.clear();
+
+                Task::none()
+            }
+            ScannerMessage::Delete => Task::stream(
+                delete(self.trash_buffer.can.clone()).map(|path| ScannerMessage::Deleted(path)),
+            ),
+            ScannerMessage::Deleted(path) => {
+                tracing::debug!("deleted {}", path.display());
+                self.trash_buffer.can.remove(&path);
+                self.deleted_files.insert(path);
+
+                Task::none()
+            }
             _ => Task::none(),
         }
     }

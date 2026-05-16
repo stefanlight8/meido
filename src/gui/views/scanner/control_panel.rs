@@ -43,8 +43,12 @@ pub fn control_panel<'a>(state: &'a ScannerState) -> Element<'a, ScannerMessage>
                     .class(Text::Secondary)
             ],
             space().width(Length::Fill),
-            button("Trash").class(Button::Warning),
-            button("Delete").class(Button::Danger),
+            button("Trash")
+                .class(Button::Warning)
+                .on_press(ScannerMessage::Trash),
+            button("Delete")
+                .class(Button::Danger)
+                .on_press(ScannerMessage::Delete),
         ]
         .spacing(4)
         .align_y(Vertical::Bottom)

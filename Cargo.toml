@@ -1,15 +1,15 @@
+[profile.release]
+lto = true
+codegen-units = 1
+panic = 'abort'
+strip = true
+
 [package]
 name = "meido"
 version = "0.2.0"
 edition = "2024"
 description = "a no-nonsense cleaner app"
 license-file = "./LICENSE"
-
-[profile.release]
-lto = true
-codegen-units = 1
-panic = 'abort'
-strip = true
 
 [dependencies]
 anyhow = "1.0.102"
@@ -21,6 +21,7 @@ rfd = "0.17.2"
 tokio = { version = "1.51.1", features = ["fs"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+trash = "5.2.6"
 
 [dev-dependencies]
 iced = { version = "0.14.0", features = ["debug"] }

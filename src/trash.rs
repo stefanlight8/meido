@@ -1,9 +1,13 @@
 use {
     crate::category::Category,
+    anyhow::Result,
+    async_stream::stream,
+    futures_lite::Stream,
     std::{
         collections::{HashMap, HashSet},
         path::PathBuf,
     },
+    tokio::fs,
 };
 
 #[derive(Debug, Clone)]
@@ -56,7 +60,48 @@ impl TrashBuffer {
         });
     }
 
-    pub async fn trash(self) {}
+    pub fn trash_file(&mut self, file: PathBuf) {
+        self.can.insert(file);
+    }
 
-    pub async fn delete(self) {}
+    pub fn untrash_file(&mut self, file: PathBuf) {
+        self.can.remove(&file);
+    }
+}
+
+// this is a temporary solution, in the future
+// TODO: maybe own trash function
+// because this doesn't work with async
+// and probably just determining a trash folder
+// and moving trash to it will be easier
+// than this crate
+pub async fn trash(paths: impl IntoIterator<Item = PathBuf>) -> Result<()> {
+    trash::delete_all(paths)?;
+    // will block tokio runtime, I hope that won't be a big problem for a quite time
+
+    Ok(())
+}
+
+pub fn delete(paths: impl IntoIterator<Item = PathBuf>) -> impl Stream<Item = PathBuf> {
+    stream! {
+        for path in paths {
+            let Ok(file_type) = fs::metadata(&path).await else {
+                continue
+            };
+
+            if file_type.is_dir() {
+                match fs::remove_dir_all(&path).await {
+                    Ok(()) => yield path,
+                    Err(err) => tracing::error!("failed to delete directory: {:?}", err),
+                }
+            } else if file_type.is_file() {
+                match fs::remove_file(&path).await {
+                    Ok(()) => yield path,
+                    Err(err) => tracing::error!("failed to delete file: {:?}", err),
+                }
+            } else {
+                tracing::warn!("unknown type: {}", path.display());
+            }
+        }
+    }
 }
